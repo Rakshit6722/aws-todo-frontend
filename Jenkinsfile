@@ -10,6 +10,11 @@ pipeline{
     }
 
     stages {
+        stage('Install AWS CLI') {
+            steps {
+                sh 'apk add --no-cache python3 py3-pip && pip install awscli'
+            }
+        }
         stage('Clone the repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/Rakshit6722/aws-todo-frontend.git'
@@ -33,7 +38,7 @@ pipeline{
                     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
                     aws s3 sync build/ s3://${S3_BUCKET}/ --delete
                     '''
-}
+                }
             }
         }
         stage('CloudFront Invalidate') {
@@ -42,14 +47,9 @@ pipeline{
                     sh '''
                     aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
                     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-                    aws cloudfront create-invalidation --distribution-id E1Z74JRZYPRIJK --paths \"/*\"
+                    aws cloudfront create-invalidation --distribution-id E1Z74JRZYPRIJK --paths "/*"
                     '''
                 }
-            }
-        }
-        stage('Install AWS CLI') {
-            steps {
-                sh 'apk add --no-cache python3 py3-pip && pip install awscli'
             }
         }
     }
