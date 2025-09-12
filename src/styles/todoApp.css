@@ -1,0 +1,30 @@
+label,
+input,
+button {
+  margin: 10px;
+  padding: 5px;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.footer {
+  background-color: #343a40;
+  color: white;
+  padding: 20px;
+  width: 100%;
+  margin-top: auto;
+  text-align: center;
+}
+
+.Header {
+  background-color: #343a40; /* Dark background color */
+  color: white; /* White text color */
+}
+
+.navbar-nav .nav-link {
+  color: white; /* White text color for nav links */
+}
