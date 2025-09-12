@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        S3_BUCKET = 'dev-todo-13412411'
+        S3_BUCKET = 'todo-frontend-2-123142141'
         AWS_REGION = 'us-west-2'
     }
 
