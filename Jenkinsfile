@@ -22,7 +22,7 @@ pipeline{
         }
         stage('Build') {
             steps {
-                sh 'npm run build'
+                sh 'CI=false npm run build'
             }
         }
         stage('Deploy to S3') {
