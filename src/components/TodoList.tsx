@@ -10,7 +10,7 @@ export default function TodoList() {
 
   useEffect(() =>{
     refreshTodos();
-  }, [])
+  }, [refreshTodos])
   
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);

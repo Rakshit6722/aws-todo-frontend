@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getTodoApi, updateTodoApi, createTodoApi } from "./api/TodoApiService";
 import { useAuth } from "./security/AuthContext";
 import { useEffect, useState } from "react";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { ErrorMessage, Field, Form as FormikForm, Formik, FormikHelpers } from "formik";
 import moment from "moment";
 import { TodoFormValues } from "../types";
 import React from "react";
@@ -19,13 +19,16 @@ export default function Todo() {
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    if (id !== "-1") {
+    if (id !== "-1" && username) {
       retrieveTodos();
     }
-  }, [id]);
+  }, [id, username]);
 
   function retrieveTodos() {
-    getTodoApi(username, id!)
+  if (!username || !id) return;
+  const todoId = Number(id);
+  if (isNaN(todoId)) return;
+  getTodoApi(username, todoId)
       .then((response) => {
         setDescription(response.data.description);
         setTargetDate(response.data.targetDate);
@@ -51,12 +54,14 @@ export default function Todo() {
     setDescription(values.description);
     setTargetDate(values.targetDate);
 
+    if (!username) return;
+    const todoId = id && !isNaN(Number(id)) ? Number(id) : undefined;
     const todo = {
-      id,
+      id: todoId ?? 0,
       username,
       description: values.description,
+      done: false,
       targetDate: values.targetDate,
-      isDone: false,
     };
 
     if (id === "-1") {
@@ -70,8 +75,8 @@ export default function Todo() {
         .finally(() => {
           setSubmitting(false);
         });
-    } else {
-      updateTodoApi(username, id!, todo)
+    } else if (todoId !== undefined) {
+      updateTodoApi(username, todoId, todo)
         .then((response) => {
           navigate("/todos");
         })
@@ -123,7 +128,7 @@ export default function Todo() {
           validateOnBlur={false}
         >
           {(props) => (
-            <Form>
+            <FormikForm>
               <ErrorMessage
                 name="description"
                 component="div"
@@ -154,7 +159,7 @@ export default function Todo() {
                 </button>
               </div>
               <br />
-            </Form>
+            </FormikForm>
           )}
         </Formik>
       </div>

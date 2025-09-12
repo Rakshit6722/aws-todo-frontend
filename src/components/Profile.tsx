@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserByUsernameApi, updateUserApi } from "./api/UserApiService";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { ErrorMessage, Field, Form as FormikForm, Formik, FormikHelpers } from "formik";
 import { useAuth } from "./security/AuthContext";
 import { ProfileFormValues } from "../types";
 import React from "react";
@@ -14,10 +14,13 @@ function Profile() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    retrieveUser();
-  }, []);
+    if (username) {
+      retrieveUser();
+    }
+  }, [username]);
 
   function retrieveUser() {
+    if (!username) return;
     getUserByUsernameApi(username)
       .then((response) => {
       })
@@ -28,8 +31,13 @@ function Profile() {
     values: ProfileFormValues,
     { setSubmitting, resetForm }: FormikHelpers<ProfileFormValues>
   ) {
-    if (values.password === values.password2) {
-      const updatedUser = { username, password: values.password, isAdmin };
+    if (values.password === values.password2 && username) {
+      const updatedUser = {
+        id: 0, // or fetch the actual id if available
+        username,
+        password: values.password,
+        admin: isAdmin,
+      };
       updateUserApi(username, updatedUser)
         .then((response) => {
           setMessage("Password updated successfully.");
@@ -109,7 +117,7 @@ function Profile() {
           validateOnBlur={false}
         >
           {(props) => (
-            <Form>
+            <FormikForm>
               <ErrorMessage
                 name="password"
                 component="div"
@@ -152,7 +160,7 @@ function Profile() {
                 </button>
               </div>
               <br />
-            </Form>
+            </FormikForm>
           )}
         </Formik>
       </div>

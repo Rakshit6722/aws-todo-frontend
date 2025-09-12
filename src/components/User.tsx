@@ -5,7 +5,7 @@ import {
   updateUserApi,
   createUserApi,
 } from "./api/UserApiService";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { ErrorMessage, Field, Form as FormikForm, Formik, FormikHelpers } from "formik";
 import { UserValues } from "../types";
 import React from "react";
 
@@ -23,7 +23,7 @@ function User() {
     if (username !== "-1") {
       retrieveUser();
     }
-  }, [username]);
+  }, [username, retrieveUser]);
 
   function retrieveUser() {
     getUserByUsernameApi(username!)
@@ -43,7 +43,9 @@ function User() {
 
   function onSubmit(values: UserValues, { setSubmitting, resetForm }: FormikHelpers<UserValues>) {
     console.log("Form submitted with values:", values);
+    // For create, use id: 0 (or backend will assign), for update, try to get id from initialValues or set 0 as fallback
     const userPayload = {
+      id: 0,
       username: values.username,
       password: values.password,
       admin: values.admin === "true",
@@ -62,9 +64,9 @@ function User() {
         })
         .catch((error) => {
           console.error("Error creating user:", error);
-          if (error.response.status === 409) {
+          if (error.response && error.response.status === 409) {
             setMessage("A user with that username already exists.");
-          } else if (error.response.status === 400) {
+          } else if (error.response && error.response.status === 400) {
             console.log(error);
             if (error.response.data.username)
               setMessage(
@@ -75,15 +77,20 @@ function User() {
                 "Failed to create user: " + error.response.data.password
               );
           } else {
-            console.log(error.response.data);
+            console.log(error.response?.data);
             setMessage("Failed to create user.");
           }
         })
         .finally(() => {
           setSubmitting(false);
         });
-    } else {
-      updateUserApi(username, userPayload)
+    } else if (username) {
+      // Try to get id from initialValues if available, else fallback to 0
+      const updatePayload = {
+        ...userPayload,
+        id: initialValues && initialValues.id ? initialValues.id : 0,
+      };
+      updateUserApi(username, updatePayload)
         .then((response) => {
           console.log("User updated successfully:", response);
           setMessage("User updated successfully.");
@@ -95,9 +102,9 @@ function User() {
         })
         .catch((error) => {
           console.error("Error updating user:", error);
-          if (error.response.status === 409) {
+          if (error.response && error.response.status === 409) {
             setMessage("A user with that username already exists.");
-          } else if (error.response.status === 400) {
+          } else if (error.response && error.response.status === 400) {
             if (error.response.data.username)
               setMessage(
                 "Failed to update user: " + error.response.data.username
@@ -186,7 +193,7 @@ function User() {
           validateOnBlur={false}
         >
           {(props) => (
-            <Form>
+            <FormikForm>
               <fieldset className="form-group" style={{ textAlign: "center" }}>
                 <label>Username</label>
                 <Field
@@ -240,7 +247,7 @@ function User() {
                 </button>
               </div>
               <br />
-            </Form>
+            </FormikForm>
           )}
         </Formik>
       </div>
