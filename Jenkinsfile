@@ -1,8 +1,8 @@
 pipeline{
     agent {
         docker{
-            image 'mesosphere/aws-cli-node:20' // Node 20 + AWS CLI preinstalled
-            args '-u root:root'
+       image 'node:20-alpine'
+        args '-u root:root' // run container as root
         }
     }
 
