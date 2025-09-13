@@ -2,7 +2,7 @@ import axios from "axios"
 
 export const apiClient = axios.create(
     {
-        baseURL: 'http://localhost:8080',
+        baseURL: 'https://dev.reachai.live/api',
         headers:{
             'Content-Type': 'application/json'
         }
