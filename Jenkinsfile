@@ -56,6 +56,12 @@ pipeline {
     post {
         always {
             cleanWs()
+             emailext(
+                subject: "${currentBuild.fullDisplayName} has FAILED",
+                body: "Build failed, check the console output: ${env.BUILD_URL}"
+            )
         }
+        
     }
+    
 }
